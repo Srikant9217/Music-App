@@ -1,4 +1,4 @@
-package com.example.music;
+package com.example.music.Model;
 
 import com.google.firebase.firestore.Exclude;
 

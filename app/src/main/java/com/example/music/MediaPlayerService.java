@@ -28,6 +28,8 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.music.Model.SongModel;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -97,15 +99,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-             if (mediaPlayer != null && mediaPlayer.isPlaying()){
-                 int currentSeekBarPosition = mediaPlayer.getCurrentPosition() / 1000;
-                 String currentPlayedDuration = currentDurationInMinutes(currentSeekBarPosition);
-                 Intent broadcastCurrentDuration = new Intent(UPDATE_PROGRESS_DATA);
-                 broadcastCurrentDuration.putExtra("currentPosition", currentSeekBarPosition);
-                 broadcastCurrentDuration.putExtra("currentDuration", currentPlayedDuration);
-                 sendBroadcast(broadcastCurrentDuration);
-             }
-             handler.postDelayed(this, 1000);
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                    int currentSeekBarPosition = mediaPlayer.getCurrentPosition() / 1000;
+                    String currentPlayedDuration = currentDurationInMinutes(currentSeekBarPosition);
+                    Intent broadcastCurrentDuration = new Intent(UPDATE_PROGRESS_DATA);
+                    broadcastCurrentDuration.putExtra("currentPosition", currentSeekBarPosition);
+                    broadcastCurrentDuration.putExtra("currentDuration", currentPlayedDuration);
+                    sendBroadcast(broadcastCurrentDuration);
+                }
+                handler.postDelayed(this, 1000);
             }
         };
         handler.postDelayed(runnable, 1000);
@@ -114,15 +116,18 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mediaPlayer == null){
+        if (mediaPlayer == null) {
             loadPlayerSource();
+            if (!requestAudioFocus()) {
+                stopSelf();
+            }
             preparePlayer();
         }
         handleIncomingActions(intent);
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void loadPlayerSource(){
+    private void loadPlayerSource() {
         try {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             songs = storage.loadAudioList();
@@ -139,7 +144,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void preparePlayer(){
+    private void preparePlayer() {
         if (mediaSessionManager == null) {
             try {
                 initMediaSession();
@@ -180,7 +185,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if (!firstTime){
+        if (!firstTime) {
             playMedia();
         }
         SongDuration = mediaPlayer.getDuration() / 1000;
@@ -190,9 +195,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        stopMedia();
-        removeNotification();
-        stopSelf();
+        skipToNext();
     }
 
     @Override
@@ -306,6 +309,14 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
     }
 
+    private void seekTo(int position) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.seekTo(position);
+        }else {
+            resumePosition = position;
+        }
+    }
+
     private void skipToNext() {
         if (audioIndex == songs.size() - 1) {
             audioIndex = 0;
@@ -331,10 +342,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         stopMedia();
         mediaPlayer.reset();
         initMediaPlayer();
-    }
-
-    private void seekTo(int position){
-        mediaPlayer.seekTo(position);
     }
 
 
@@ -395,7 +402,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             @Override
             public void onSeekTo(long position) {
                 super.onSeekTo(position);
-                seekTo((int)position);
+                seekTo((int) position);
             }
         });
     }
@@ -548,6 +555,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             }
             stopMedia();
             mediaPlayer.reset();
+            firstTime = false;
             initMediaPlayer();
             updateMetaData();
             buildNotification(PlaybackStatus.PLAYING);
@@ -561,15 +569,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
 
-    public void seekToSong(int position){
-        transportControls.seekTo((long)position * 1000);
+    public void seekToSong(int position) {
+        transportControls.seekTo((long) position * 1000);
     }
 
-    public void previousSong(){
+    public void previousSong() {
         transportControls.skipToPrevious();
     }
 
-    public PlaybackStatus playPause(){
+    public PlaybackStatus playPause() {
         if (status == PlaybackStatus.PLAYING) {
             transportControls.pause();
         } else if (status == PlaybackStatus.PAUSED) {
@@ -579,11 +587,11 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         return status;
     }
 
-    public void nextSong(){
+    public void nextSong() {
         transportControls.skipToNext();
     }
 
-    public void updateSongData(){
+    public void updateSongData() {
         Intent broadcastIntent = new Intent(UPDATE_SONG_DATA);
         broadcastIntent.putExtra("activeSong", activeSong);
         broadcastIntent.putExtra("duration", SongDuration);
@@ -592,16 +600,16 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         sendBroadcast(broadcastIntent);
     }
 
-    private String currentDurationInMinutes(int currentSeekBarPosition){
+    private String currentDurationInMinutes(int currentSeekBarPosition) {
         String totalNew;
         String totalOut;
         String seconds = String.valueOf(currentSeekBarPosition % 60);
         String minutes = String.valueOf(currentSeekBarPosition / 60);
         totalNew = minutes + ":0" + seconds;
         totalOut = minutes + ":" + seconds;
-        if (seconds.length() == 1){
+        if (seconds.length() == 1) {
             return totalNew;
-        }else {
+        } else {
             return totalOut;
         }
     }

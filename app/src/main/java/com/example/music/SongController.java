@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
+import com.example.music.Model.SongModel;
 import com.squareup.picasso.Picasso;
 
 public class SongController extends Fragment implements SeekBar.OnSeekBarChangeListener {
@@ -26,9 +28,11 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     private TextView textViewLiveTime;
     private TextView textViewTotalTime;
     private SeekBar seekBar;
+    private ProgressBar progressBar;
     private ImageView playPauseButton;
 
     private SongModel activeSong;
+    private String activeImageUrl = "";
     private int songDuration;
     private String songDurationInMinutes;
     private PlaybackStatus status;
@@ -52,6 +56,7 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         textViewLiveTime = v.findViewById(R.id.text_view_song_controller_live_time);
         textViewTotalTime = v.findViewById(R.id.text_view_song_controller_total_time);
         seekBar = v.findViewById(R.id.seek_bar_song_controller);
+        progressBar = v.findViewById(R.id.progress_bar_song_controller);
         playPauseButton = v.findViewById(R.id.image_view_song_controller_play_pause);
 
         seekBar.setOnSeekBarChangeListener(this);
@@ -166,11 +171,14 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         songDurationInMinutes = intent.getStringExtra("totalTime");
         status = (PlaybackStatus) intent.getSerializableExtra("status");
 
-        Picasso.with(getActivity())
-                .load(activeSong.getImageUrl())
-                .fit()
-                .centerCrop()
-                .into(imageView);
+        if (!activeImageUrl.equals(activeSong.getImageUrl())) {
+            activeImageUrl = activeSong.getImageUrl();
+            Picasso.with(getActivity())
+                    .load(activeImageUrl)
+                    .fit()
+                    .centerCrop()
+                    .into(imageView);
+        }
         textViewTitle.setText(activeSong.getTitle());
         textViewArtist.setText(activeSong.getArtist());
         seekBar.setMax(songDuration);
@@ -183,7 +191,9 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     }
 
     private void updateProgressData(Intent intent) {
-        seekBar.setProgress(intent.getIntExtra("currentPosition", 2));
+        int progress = intent.getIntExtra("currentPosition", 2);
+        seekBar.setProgress(progress);
+        progressBar.setProgress(100 * progress / songDuration);
         textViewLiveTime.setText(intent.getStringExtra("currentDuration"));
     }
 

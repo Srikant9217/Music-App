@@ -12,9 +12,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.music.SongAdapter;
+import com.example.music.Adapter.SongAdapter;
 import com.example.music.MainActivity;
-import com.example.music.SongModel;
+import com.example.music.Model.SongModel;
 import com.example.music.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

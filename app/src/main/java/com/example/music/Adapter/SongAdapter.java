@@ -1,4 +1,4 @@
-package com.example.music;
+package com.example.music.Adapter;
 
 import android.content.Context;
 import android.view.ContextMenu;
@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.music.Model.SongModel;
+import com.example.music.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
