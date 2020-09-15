@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.transition.TransitionManager;
 import android.view.LayoutInflater;
@@ -82,11 +83,13 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     public void expandController(View v) {
         TransitionManager.beginDelayedTransition(layout);
         constraintSetExpanded.applyTo(layout);
+        v.setBackgroundColor(Color.BLACK);
     }
 
     public void collapseController(View v) {
         TransitionManager.beginDelayedTransition(layout);
         constraintSetCollapsed.applyTo(layout);
+        v.setBackgroundColor(getResources().getColor(R.color.songControllerBackground));
     }
 
     public void openOptions(View v) {

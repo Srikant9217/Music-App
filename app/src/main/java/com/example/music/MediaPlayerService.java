@@ -40,7 +40,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener,
         AudioManager.OnAudioFocusChangeListener {
 
-
     public static final String UPDATE_SONG_DATA = "songControllerData";
     public static final String UPDATE_PROGRESS_DATA = "updateProgressData";
 
@@ -58,24 +57,24 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     private static final int NOTIFICATION_ID = 101;
 
-    private int resumePosition;
+    private boolean ongoingCall = false;
+    private PhoneStateListener phoneStateListener;
+    private TelephonyManager telephonyManager;
 
     private AudioManager audioManager;
-
-    private final IBinder iBinder = new LocalBinder();
 
     private ArrayList<SongModel> songs;
     private int audioIndex = -1;
     private SongModel activeSong;
 
-    private boolean ongoingCall = false;
-    private PhoneStateListener phoneStateListener;
-    private TelephonyManager telephonyManager;
+    private int resumePosition;
 
     public static PlaybackStatus status = PlaybackStatus.PAUSED;
-    private boolean firstTime = true;
+    public static boolean firstTime = true;
     private int SongDuration;
     private String SongDurationInMinutes;
+
+    private final IBinder iBinder = new LocalBinder();
 
     public class LocalBinder extends Binder {
         public MediaPlayerService getService() {
@@ -312,7 +311,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private void seekTo(int position) {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(position);
-        }else {
+        } else {
             resumePosition = position;
         }
     }
@@ -568,6 +567,23 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         registerReceiver(playNewAudio, filter);
     }
 
+    public void updatePlaylist() {
+        StorageUtil storage = new StorageUtil(getApplicationContext());
+        songs = storage.loadAudioList();
+        audioIndex = storage.loadAudioIndex();
+        if (audioIndex != -1 && audioIndex < songs.size()) {
+            activeSong = songs.get(audioIndex);
+        } else {
+            stopSelf();
+        }
+        stopMedia();
+        mediaPlayer.reset();
+        firstTime = false;
+        initMediaPlayer();
+        updateMetaData();
+        buildNotification(PlaybackStatus.PLAYING);
+        updateSongData();
+    }
 
     public void seekToSong(int position) {
         transportControls.seekTo((long) position * 1000);

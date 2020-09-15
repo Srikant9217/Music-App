@@ -4,31 +4,38 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.music.R;
+import com.example.music.ui.library.fragmentTabs.Albums;
+import com.example.music.ui.library.fragmentTabs.Artists;
+import com.example.music.ui.library.fragmentTabs.PlaylistsFragment;
+import com.google.android.material.tabs.TabLayout;
 
 public class LibraryFragment extends Fragment {
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
-    private LibraryViewModel libraryViewModel;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_library, container, false);
+    }
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        libraryViewModel = ViewModelProviders.of(this).get(LibraryViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_library, container, false);
-        final TextView textView = root.findViewById(R.id.text_library);
-        libraryViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        return root;
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        tabLayout = view.findViewById(R.id.tabs);
+        viewPager = view.findViewById(R.id.view_pager);
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+        adapter.addFragment(new PlaylistsFragment(), "Playlists");
+        adapter.addFragment(new Artists(), "Artists");
+        adapter.addFragment(new Albums(), "Albums");
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 }

@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,8 +27,8 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
-
 public class HomeFragment extends Fragment implements SongAdapter.OnItemClickListener {
+    private static ImageView imageViewUserProfile;
     private RecyclerView recyclerView;
     private SongAdapter adapter;
     private ProgressBar progressBarRecycler;
@@ -40,8 +42,10 @@ public class HomeFragment extends Fragment implements SongAdapter.OnItemClickLis
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
+        imageViewUserProfile = v.findViewById(R.id.image_view_user_profile);
         progressBarRecycler = v.findViewById(R.id.recycler_view_progress_bar);
         recyclerView = v.findViewById(R.id.recycler_view);
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -73,11 +77,20 @@ public class HomeFragment extends Fragment implements SongAdapter.OnItemClickLis
                 progressBarRecycler.setVisibility(View.INVISIBLE);
             }
         });
+        updateUserUI();
         return v;
     }
 
     @Override
     public void onItemClick(int position) {
         ((MainActivity)getActivity()).playSong(songList, position);
+    }
+
+    public static void updateUserUI(){
+        if (MainActivity.currentUser == null){
+            imageViewUserProfile.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.loginFragment));
+        }else {
+            imageViewUserProfile.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.userProfileFragment));
+        }
     }
 }
