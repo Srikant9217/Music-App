@@ -27,16 +27,14 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
 
-    public static final String SERVICE_STATUS = "serviceStatus";
-    public static final String PLAY_NEW_AUDIO = "playNewAudio";
+    public static final String SERVICE_STATUS = "SERVICE_STATUS";
+    public static final String PLAY_NEW_AUDIO = "PLAY_NEW_AUDIO";
 
     private MediaPlayerService player;
     private boolean serviceBound = false;
-    private boolean newPlaylist;
 
     private StorageUtil storage;
     private ArrayList<SongModel> oldSongs;
-    private int oldAudioIndex;
 
     private View navHostFragment;
     private SongController songControllerFragment;
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
 
         storage = new StorageUtil(getApplicationContext());
         oldSongs = storage.loadAudioList();
-        oldAudioIndex = storage.loadAudioIndex();
 
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
@@ -75,13 +72,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (oldSongs != null && !oldSongs.isEmpty()) {
-            reloadPlaylist();
-        }else {
-            newPlaylist = true;
+            startMusicService();
+        } else {
+            View v = findViewById(R.id.song_controller_container);
+            v.setVisibility(View.GONE);
         }
     }
 
-    private void reloadPlaylist(){
+    private void startMusicService() {
         Intent playerIntent = new Intent(this, MediaPlayerService.class);
         startService(playerIntent);
         bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openArtist(View v) {
-        if (expanded){
+        if (expanded) {
             Toast.makeText(MainActivity.this, "Artist", Toast.LENGTH_SHORT).show();
         }
     }
@@ -129,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void playPauseSong(View v) {
         if (serviceBound) {
-            PlaybackStatus status = player.playPause();
-            songControllerFragment.loadPlayPauseButton(v, status);
+            player.playPause();
+            songControllerFragment.loadPlayPauseButton(v);
         }
     }
 
@@ -142,12 +140,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "Shuffle Playlist", Toast.LENGTH_SHORT).show();
     }
 
-    private boolean playlistsEqual(ArrayList<SongModel> songList, ArrayList<SongModel> currentSongList){
-        if (currentSongList.size() != songList.size()){
+    private boolean playlistsEqual(ArrayList<SongModel> songList, ArrayList<SongModel> currentSongList) {
+        if (currentSongList.size() != songList.size()) {
             return false;
         }
-        for (int i=0; i< songList.size(); i++){
-            if (!songList.get(i).getTitle().equals(currentSongList.get(i).getTitle())){
+        for (int i = 0; i < songList.size(); i++) {
+            if (!songList.get(i).getTitle().equals(currentSongList.get(i).getTitle())) {
                 return false;
             }
         }
@@ -160,11 +158,14 @@ public class MainActivity extends AppCompatActivity {
         storage.storeAudioList(songList);
         storage.storeAudioIndex(position);
 
-        if (newPlaylist){
-            reloadPlaylist();
-            MediaPlayerService.firstTime = false;
-            newPlaylist = false;
-        }else if (!playlistsEqual(songList, currentSongList)){
+        if (storage.loadSettingFirstStart()) {
+            startMusicService();
+            View v = findViewById(R.id.song_controller_container);
+            v.setVisibility(View.VISIBLE);
+            storage.storePlaybackStatus(PlaybackStatus.PLAYING);
+            storage.storeSettingFirstTime(false);
+            storage.storeSettingFirstStart(false);
+        } else if (!playlistsEqual(songList, currentSongList)) {
             player.updatePlaylist();
         }
 

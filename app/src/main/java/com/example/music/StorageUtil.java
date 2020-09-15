@@ -13,13 +13,19 @@ import java.util.ArrayList;
 
 public class StorageUtil {
     private final String STORAGE = "STORAGE";
-    private final String STORAGE_LAST_SONG = "STORAGE_LAST_SONG";
+    private final String SONG_ARRAY_LIST = "SONG_ARRAY_LIST";
+    private final String SONG_POSITION = "SONG_POSITION";
 
-    public static final String SONG_ARRAY_LIST = "SONG_ARRAY_LIST";
-    public static final String SONG_POSITION = "SONG_POSITION";
-    public static final String ACTIVE_SONG = "ACTIVE_SONG";
-    public static final String SONG_DURATION = "SONG_DURATION";
-    public static final String DURATION_IN_MINUTES = "DURATION_IN_MINUTES";
+    private final String STORAGE_LAST_SONG = "STORAGE_LAST_SONG";
+    private final String ACTIVE_SONG = "ACTIVE_SONG";
+    private final String SONG_DURATION = "SONG_DURATION";
+    private final String DURATION_IN_MINUTES = "DURATION_IN_MINUTES";
+    private final String PLAYBACK_STATUS = "PLAYBACK_STATUS";
+    private final String FOCUS = "FOCUS";
+
+    private final String SETTINGS = "SETTINGS";
+    private final String FIRST_START = "FIRST_START";
+    private final String FIRST_TIME = "FIRST_TIME";
 
     private SharedPreferences preferences;
     private Context context;
@@ -27,6 +33,8 @@ public class StorageUtil {
     public StorageUtil(Context context) {
         this.context = context;
     }
+
+
 
     public void storeAudioList(ArrayList<SongModel> arrayList) {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
@@ -56,6 +64,15 @@ public class StorageUtil {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         return preferences.getInt(SONG_POSITION, -1);
     }
+
+    public void clearCachedAudioPlaylist() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+
 
     public void storeActiveSong(SongModel activeSong) {
         preferences = context.getSharedPreferences(STORAGE_LAST_SONG, Context.MODE_PRIVATE);
@@ -98,10 +115,54 @@ public class StorageUtil {
         return preferences.getString(DURATION_IN_MINUTES, "null");
     }
 
-    public void clearCachedAudioPlaylist() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+    public void storePlaybackStatus(PlaybackStatus status) {
+        preferences = context.getSharedPreferences(STORAGE_LAST_SONG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
+        editor.putString(PLAYBACK_STATUS, status.toString());
         editor.apply();
     }
+
+    public PlaybackStatus loadPlaybackStatus() {
+        preferences = context.getSharedPreferences(STORAGE_LAST_SONG, Context.MODE_PRIVATE);
+        String status = preferences.getString(PLAYBACK_STATUS, PlaybackStatus.PAUSED.toString());
+        return PlaybackStatus.toStatus(status);
+    }
+
+    public void storeFocus(boolean bool) {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(FOCUS, bool);
+        editor.apply();
+    }
+
+    public boolean loadFocus() {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        return preferences.getBoolean(FOCUS, false);
+    }
+
+
+    public void storeSettingFirstStart(boolean bool) {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(FIRST_START, bool);
+        editor.apply();
+    }
+
+    public boolean loadSettingFirstStart() {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        return preferences.getBoolean(FIRST_START, true);
+    }
+
+    public void storeSettingFirstTime(boolean bool) {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(FIRST_TIME, bool);
+        editor.apply();
+    }
+
+    public boolean loadSettingFirstTime() {
+        preferences = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+        return preferences.getBoolean(FIRST_TIME, true);
+    }
+
 }

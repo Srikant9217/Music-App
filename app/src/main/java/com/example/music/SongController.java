@@ -36,7 +36,6 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     private String activeImageUrl = "";
     private int songDuration;
     private String songDurationInMinutes;
-    private PlaybackStatus status;
 
     private StorageUtil storage;
 
@@ -113,11 +112,11 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
 
     }
 
-    public void loadPlayPauseButton(View v, PlaybackStatus status) {
+    public void loadPlayPauseButton(View v) {
         ImageView iconPlayPause = v.findViewById(R.id.image_view_song_controller_play_pause);
-        if (status == PlaybackStatus.PLAYING) {
+        if (storage.loadPlaybackStatus() == PlaybackStatus.PLAYING) {
             iconPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
-        } else if (status == PlaybackStatus.PAUSED) {
+        } else if (storage.loadPlaybackStatus() == PlaybackStatus.PAUSED) {
             iconPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         }
     }
@@ -165,14 +164,13 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         textViewArtist.setText(activeSong.getArtist());
         seekBar.setMax(songDuration);
         textViewTotalTime.setText(songDurationInMinutes);
-        loadPlayPauseButton(playPauseButton, MediaPlayerService.status);
+        loadPlayPauseButton(playPauseButton);
     }
 
     private void updateSongData(Intent intent) {
         activeSong = (SongModel) intent.getSerializableExtra("activeSong");
         songDuration = intent.getIntExtra("duration", 1);
         songDurationInMinutes = intent.getStringExtra("totalTime");
-        status = (PlaybackStatus) intent.getSerializableExtra("status");
 
         if (!activeImageUrl.equals(activeSong.getImageUrl())) {
             activeImageUrl = activeSong.getImageUrl();
@@ -186,7 +184,7 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         textViewArtist.setText(activeSong.getArtist());
         seekBar.setMax(songDuration);
         textViewTotalTime.setText(songDurationInMinutes);
-        loadPlayPauseButton(playPauseButton, status);
+        loadPlayPauseButton(playPauseButton);
 
         storage.storeActiveSong(activeSong);
         storage.storeSongDuration(songDuration);
@@ -200,6 +198,11 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         textViewLiveTime.setText(intent.getStringExtra("currentDuration"));
     }
 
+    private void resetProgressData(){
+        seekBar.setProgress(0);
+        progressBar.setProgress(0);
+    }
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -210,7 +213,9 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
                 case MediaPlayerService.UPDATE_PROGRESS_DATA:
                     updateProgressData(intent);
                     break;
-
+                case MediaPlayerService.RESET_PROGRESS_DATA:
+                    resetProgressData();
+                    break;
             }
         }
     };

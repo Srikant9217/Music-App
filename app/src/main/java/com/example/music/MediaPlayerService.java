@@ -40,8 +40,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener,
         AudioManager.OnAudioFocusChangeListener {
 
-    public static final String UPDATE_SONG_DATA = "songControllerData";
-    public static final String UPDATE_PROGRESS_DATA = "updateProgressData";
+    public static final String UPDATE_SONG_DATA = "UPDATE_SONG_DATA";
+    public static final String UPDATE_PROGRESS_DATA = "UPDATE_PROGRESS_DATA";
+    public static final String RESET_PROGRESS_DATA = "RESET_PROGRESS_DATA";
 
     public static final String ACTION_PAUSE = "ACTION_PAUSE";
     public static final String ACTION_PLAY = "ACTION_PLAY";
@@ -69,10 +70,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     private int resumePosition;
 
-    public static PlaybackStatus status = PlaybackStatus.PAUSED;
-    public static boolean firstTime = true;
     private int SongDuration;
     private String SongDurationInMinutes;
+
+    private StorageUtil storage;
 
     private final IBinder iBinder = new LocalBinder();
 
@@ -90,6 +91,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     @Override
     public void onCreate() {
         super.onCreate();
+        storage = new StorageUtil(getApplicationContext());
         callStateListener();
         registerBecomingNoisyReceiver();
         registerPlayNewAudio();
@@ -117,9 +119,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (mediaPlayer == null) {
             loadPlayerSource();
-            if (!requestAudioFocus()) {
-                stopSelf();
-            }
             preparePlayer();
         }
         handleIncomingActions(intent);
@@ -184,7 +183,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if (!firstTime) {
+        if (!storage.loadSettingFirstTime()) {
             playMedia();
         }
         SongDuration = mediaPlayer.getDuration() / 1000;
@@ -228,24 +227,34 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onAudioFocusChange(int focusState) {
         switch (focusState) {
             case AudioManager.AUDIOFOCUS_GAIN:
-                if (mediaPlayer == null) initMediaPlayer();
-                else if (!mediaPlayer.isPlaying()) mediaPlayer.start();
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                }
                 mediaPlayer.setVolume(1.0f, 1.0f);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    resumePosition = mediaPlayer.getCurrentPosition();
+                    buildNotification(PlaybackStatus.PAUSED);
+                    updateSongData();
+                    storage.storeFocus(false);
+                }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                if (mediaPlayer.isPlaying()) mediaPlayer.pause();
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                if (mediaPlayer.isPlaying()) mediaPlayer.setVolume(0.1f, 0.1f);
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.setVolume(0.1f, 0.1f);
+                }
                 break;
         }
     }
@@ -254,6 +263,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+    }
+
+    private void focus(){
+        if (!storage.loadFocus()) {
+            if (!requestAudioFocus()) {
+                stopSelf();
+                storage.storeFocus(true);
+            }
+        }
     }
 
     private void removeAudioFocus() {
@@ -330,7 +348,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void skipToPrevious() {
-
         if (audioIndex == 0) {
             audioIndex = songs.size() - 1;
             activeSong = songs.get(audioIndex);
@@ -359,6 +376,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             @Override
             public void onPlay() {
                 super.onPlay();
+                focus();
                 resumeMedia();
                 buildNotification(PlaybackStatus.PLAYING);
                 updateSongData();
@@ -367,6 +385,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             @Override
             public void onPause() {
                 super.onPause();
+                focus();
                 pauseMedia();
                 buildNotification(PlaybackStatus.PAUSED);
                 updateSongData();
@@ -375,6 +394,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             @Override
             public void onSkipToNext() {
                 super.onSkipToNext();
+                focus();
                 skipToNext();
                 updateMetaData();
                 buildNotification(PlaybackStatus.PLAYING);
@@ -384,6 +404,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             @Override
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
+                focus();
                 skipToPrevious();
                 updateMetaData();
                 buildNotification(PlaybackStatus.PLAYING);
@@ -432,11 +453,11 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         if (playbackStatus == PlaybackStatus.PLAYING) {
             notificationAction = android.R.drawable.ic_media_pause;
             play_pauseAction = playbackAction(1);
-            status = PlaybackStatus.PLAYING;
+            storage.storePlaybackStatus(PlaybackStatus.PLAYING);
         } else if (playbackStatus == PlaybackStatus.PAUSED) {
             notificationAction = android.R.drawable.ic_media_play;
             play_pauseAction = playbackAction(0);
-            status = PlaybackStatus.PAUSED;
+            storage.storePlaybackStatus(PlaybackStatus.PAUSED);
         }
 
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_baseline_music_note_24);
@@ -554,7 +575,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             }
             stopMedia();
             mediaPlayer.reset();
-            firstTime = false;
+            storage.storeSettingFirstTime(false);
+            focus();
             initMediaPlayer();
             updateMetaData();
             buildNotification(PlaybackStatus.PLAYING);
@@ -578,7 +600,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
         stopMedia();
         mediaPlayer.reset();
-        firstTime = false;
+        storage.storeSettingFirstTime(false);
+        focus();
         initMediaPlayer();
         updateMetaData();
         buildNotification(PlaybackStatus.PLAYING);
@@ -593,14 +616,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         transportControls.skipToPrevious();
     }
 
-    public PlaybackStatus playPause() {
-        if (status == PlaybackStatus.PLAYING) {
+    public void playPause() {
+        if (storage.loadPlaybackStatus() == PlaybackStatus.PLAYING) {
             transportControls.pause();
-        } else if (status == PlaybackStatus.PAUSED) {
+        } else if (storage.loadPlaybackStatus() == PlaybackStatus.PAUSED) {
             transportControls.play();
-            firstTime = false;
+            storage.storeSettingFirstTime(false);
         }
-        return status;
     }
 
     public void nextSong() {
@@ -612,7 +634,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         broadcastIntent.putExtra("activeSong", activeSong);
         broadcastIntent.putExtra("duration", SongDuration);
         broadcastIntent.putExtra("totalTime", SongDurationInMinutes);
-        broadcastIntent.putExtra("status", status);
         sendBroadcast(broadcastIntent);
     }
 
@@ -633,6 +654,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+        storage.storeFocus(false);
+        storage.storePlaybackStatus(PlaybackStatus.PAUSED);
+        storage.storeSettingFirstTime(true);
         stopSelf();
     }
 }

@@ -3,11 +3,13 @@ package com.example.music.ui.userProfile;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.content.AsyncTaskLoader;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -135,48 +137,54 @@ public class UserProfile extends Fragment implements DialogEditProfileImage.Dial
     }
 
     @Override
-    public void EditImage(Uri uri) {
+    public void EditImage(final Uri uri) {
         if (uri != null) {
-            StorageReference fileReference = storageRef.child(System.currentTimeMillis() + "." +
-                    getFileExtension(uri));
-            fileReference.putFile(uri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> getUrlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!getUrlTask.isSuccessful()) ;
-                            final Uri downloadUri = getUrlTask.getResult();
-                            databaseRef.orderByChild("userId").equalTo(currentUser.getUid())
-                                    .addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                                                UserModel user = dataSnapshot.getValue(UserModel.class);
-                                                user.setImageUrl(downloadUri.toString());
-                                                Picasso.with(getActivity())
-                                                        .load(user.getImageUrl())
-                                                        .fit()
-                                                        .centerCrop()
-                                                        .into(imageViewProfile);
-                                                uploadId = dataSnapshot.getKey();
-                                                databaseRef.child(uploadId).setValue(user);
-                                            }
-                                        }
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    StorageReference fileReference = storageRef.child(System.currentTimeMillis() + "." +
+                            getFileExtension(uri));
+                    fileReference.putFile(uri)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Task<Uri> getUrlTask = taskSnapshot.getStorage().getDownloadUrl();
+                                    while (!getUrlTask.isSuccessful()) ;
+                                    final Uri downloadUri = getUrlTask.getResult();
+                                    databaseRef.orderByChild("userId").equalTo(currentUser.getUid())
+                                            .addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                                        UserModel user = dataSnapshot.getValue(UserModel.class);
+                                                        user.setImageUrl(downloadUri.toString());
+                                                        Picasso.with(getActivity())
+                                                                .load(user.getImageUrl())
+                                                                .fit()
+                                                                .centerCrop()
+                                                                .into(imageViewProfile);
+                                                        uploadId = dataSnapshot.getKey();
+                                                        databaseRef.child(uploadId).setValue(user);
+                                                    }
+                                                }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
 
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            };
+            new Thread(runnable).start();
         } else {
             Toast.makeText(getActivity(), "please Select Image", Toast.LENGTH_SHORT).show();
         }
@@ -203,7 +211,6 @@ public class UserProfile extends Fragment implements DialogEditProfileImage.Dial
                             Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-
         }
     }
 }
