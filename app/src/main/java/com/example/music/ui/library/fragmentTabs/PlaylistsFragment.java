@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.music.Adapter.PlaylistAdapter;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 
 public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnItemClickListener, DialogAddPlaylist.DialogPlaylistListener {
     private ImageView buttonAddPlaylist;
+    private RelativeLayout favouritePlaylist;
+
     private RecyclerView recyclerView;
     private PlaylistAdapter adapter;
     private ProgressBar progressBarRecycler;
@@ -61,7 +64,9 @@ public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnIte
         super.onViewCreated(view, savedInstanceState);
 
         buttonAddPlaylist = view.findViewById(R.id.add_playlist);
+        favouritePlaylist = view.findViewById(R.id.favourites_playlist);
         progressBarRecycler = view.findViewById(R.id.recycler_view_progress_bar);
+
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -108,12 +113,14 @@ public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnIte
         }else {
             progressBarRecycler.setVisibility(View.INVISIBLE);
         }
+
         buttonAddPlaylist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addPlaylist();
             }
         });
+        favouritePlaylist.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.favouriteFragment));
     }
 
     private void addPlaylist() {

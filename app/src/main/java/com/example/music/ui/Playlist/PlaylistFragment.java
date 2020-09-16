@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.music.Adapter.SongAdapter;
+import com.example.music.BottomSheets.BottomSheetPlaylistSongs;
 import com.example.music.Dialogs.DialogAddPlaylist;
 import com.example.music.Dialogs.DialogAddSongsToPlaylist;
 import com.example.music.MainActivity;
@@ -34,7 +35,9 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
-public class PlaylistFragment extends Fragment implements SongAdapter.OnItemClickListener, DialogAddSongsToPlaylist.DialogAddSongsListener {
+public class PlaylistFragment extends Fragment implements SongAdapter.OnItemClickListener,
+        DialogAddSongsToPlaylist.DialogAddSongsListener,
+        BottomSheetPlaylistSongs.BottomSheetListener {
     private TextView textViewPlaylistTitle;
     private ImageView buttonAddSongsToPlaylist;
 
@@ -178,13 +181,30 @@ public class PlaylistFragment extends Fragment implements SongAdapter.OnItemClic
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        databaseReference.removeEventListener(dbListener1);
+    public void onItemClick(int position) {
+        ((MainActivity)getActivity()).playSong(songList, position);
     }
 
     @Override
-    public void onItemClick(int position) {
-        ((MainActivity)getActivity()).playSong(songList, position);
+    public void onItemLongClick(int position) {
+        BottomSheetPlaylistSongs bottomSheet = new BottomSheetPlaylistSongs();
+        bottomSheet.setBottomSheetListener(this);
+        bottomSheet.show(getChildFragmentManager(), "BottomSheetPlaylistSongs");
+    }
+
+    @Override
+    public void onOptionClicked(int position) {
+        switch (position){
+            case 0:
+                Toast.makeText(getActivity(), "0", Toast.LENGTH_SHORT).show();
+            case 1:
+                Toast.makeText(getActivity(), "1", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        databaseReference.removeEventListener(dbListener1);
     }
 }

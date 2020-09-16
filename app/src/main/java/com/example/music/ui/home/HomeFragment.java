@@ -86,6 +86,11 @@ public class HomeFragment extends Fragment implements SongAdapter.OnItemClickLis
         ((MainActivity)getActivity()).playSong(songList, position);
     }
 
+    @Override
+    public void onItemLongClick(int position) {
+
+    }
+
     public static void updateUserUI(){
         if (MainActivity.currentUser == null){
             imageViewUserProfile.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.loginFragment));

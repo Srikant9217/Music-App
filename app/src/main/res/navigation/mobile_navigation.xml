@@ -48,4 +48,8 @@
         android:name="com.example.music.ui.Playlist.PlaylistFragment"
         android:label="fragment_playlist"
         tools:layout="@layout/fragment_playlist" />
+    <fragment
+        android:id="@+id/favouriteFragment"
+        android:name="com.example.music.ui.Playlist.FavouriteFragment"
+        android:label="FavouriteFragment" />
 </navigation>

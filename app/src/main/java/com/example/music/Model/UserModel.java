@@ -8,7 +8,7 @@ public class UserModel {
     private String UserId;
     private String name;
     private String imageUrl;
-    private ArrayList<String> favouriteSongs;
+    private ArrayList<SongModel> favouriteSongs;
     private ArrayList<String> favouriteArtists;
     private ArrayList<String> favouriteAlbums;
     private ArrayList<PlaylistModel> playlists;
@@ -46,11 +46,11 @@ public class UserModel {
         this.imageUrl = imageUrl;
     }
 
-    public ArrayList<String> getFavouriteSongs() {
+    public ArrayList<SongModel> getFavouriteSongs() {
         return favouriteSongs;
     }
 
-    public void setFavouriteSongs(ArrayList<String> favouriteSongs) {
+    public void setFavouriteSongs(ArrayList<SongModel> favouriteSongs) {
         this.favouriteSongs = favouriteSongs;
     }
 

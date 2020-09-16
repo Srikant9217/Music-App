@@ -11,28 +11,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.music.FavouriteSongs;
 import com.example.music.Model.SongModel;
 import com.example.music.R;
+import com.example.music.StorageUtil;
+import com.example.music.ui.Playlist.FavouriteFragment;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     private Context context;
     private List<SongModel> songs;
     private OnItemClickListener listener;
+    private StorageUtil storage;
+    private ArrayList<SongModel> favSongs;
+    private FavouriteSongs favouriteSongs;
 
     public SongAdapter(Context context, List<SongModel> songs) {
         this.context = context;
         this.songs = songs;
+        storage = new StorageUtil(context);
+        favouriteSongs = FavouriteSongs.getInstance(context);
     }
 
     @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.item_song, parent, false);
+        favSongs = storage.loadFavouriteSongs();
         return new SongViewHolder(v);
     }
 
@@ -46,6 +57,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 .into(holder.imageViewSongImage);
         holder.textViewTitle.setText(currentSong.getTitle());
         holder.textViewArtist.setText(currentSong.getArtist());
+
+        if (favSongs != null) {
+            if (favouriteSongs.isFavourite(currentSong)) {
+                holder.imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+            }else {
+                holder.imageViewFavourite.setImageResource(R.drawable.ic_baseline_not_favorite);
+            }
+        }
     }
 
     @Override
@@ -53,8 +72,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return songs.size();
     }
 
-    public class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-            View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+    public class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private TextView textViewTitle;
         private TextView textViewArtist;
         private ImageView imageViewSongImage;
@@ -70,20 +88,33 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             imageViewMenu = itemView.findViewById(R.id.image_view_menu);
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
             imageViewFavourite.setOnClickListener(this);
-            imageViewMenu.setOnCreateContextMenuListener(this);
+            imageViewMenu.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
+            int position = getAdapterPosition();
+            switch (view.getId()) {
                 case R.id.image_view_favourite:
-                    imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+                    boolean isFavourite = favouriteSongs.favourite(songs.get(position), context);
+                    if (isFavourite) {
+                        imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+                    } else {
+                        imageViewFavourite.setImageResource(R.drawable.ic_baseline_not_favorite);
+                    }
+                    break;
+                case R.id.image_view_menu:
+                    if (listener != null) {
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemLongClick(position);
+                        }
+                    }
                     break;
                 default:
-                    if (listener != null){
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION){
+                    if (listener != null) {
+                        if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
                         }
                     }
@@ -91,31 +122,24 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         }
 
         @Override
-        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-            MenuItem delete = contextMenu.add(Menu.NONE, 1, 1, "Delete");
-            delete.setOnMenuItemClickListener(this);
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            if (listener != null){
+        public boolean onLongClick(View view) {
+            if (listener != null) {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION){
-                    switch (menuItem.getItemId()){
-                        case 1:
-                            return true;
-                    }
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onItemLongClick(position);
                 }
             }
-            return false;
+            return true;
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(int position);
+
+        void onItemLongClick(int position);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener){
+    public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 }

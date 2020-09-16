@@ -26,6 +26,7 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     private ImageView imageView;
     private TextView textViewTitle;
     private TextView textViewArtist;
+    private ImageView imageViewFavourite;
     private TextView textViewLiveTime;
     private TextView textViewTotalTime;
     private SeekBar seekBar;
@@ -38,6 +39,8 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     private String songDurationInMinutes;
 
     private StorageUtil storage;
+
+    private FavouriteSongs favouriteSongs;
 
     private ConstraintLayout layout;
     private ConstraintSet constraintSetCollapsed = new ConstraintSet();
@@ -53,6 +56,7 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         imageView = v.findViewById(R.id.image_view_song_controller_song_image);
         textViewTitle = v.findViewById(R.id.text_view_song_controller_title);
         textViewArtist = v.findViewById(R.id.text_view_song_controller_artist);
+        imageViewFavourite = v.findViewById(R.id.image_view_song_controller_favourite);
         textViewLiveTime = v.findViewById(R.id.text_view_song_controller_live_time);
         textViewTotalTime = v.findViewById(R.id.text_view_song_controller_total_time);
         seekBar = v.findViewById(R.id.seek_bar_song_controller);
@@ -60,6 +64,8 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         playPauseButton = v.findViewById(R.id.image_view_song_controller_play_pause);
 
         seekBar.setOnSeekBarChangeListener(this);
+
+        favouriteSongs = FavouriteSongs.getInstance(getActivity());
 
         intiController();
 
@@ -100,8 +106,13 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     }
 
     public void likeSong(View v) {
-        ImageView iconFavourite = v.findViewById(R.id.image_view_song_controller_favourite);
-        iconFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+        boolean isFavourite = favouriteSongs.favourite(activeSong, getActivity());
+        if (isFavourite) {
+            imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+        } else {
+            imageViewFavourite.setImageResource(R.drawable.ic_baseline_not_favorite);
+        }
+
     }
 
     public void repeatSong(View v) {
@@ -162,9 +173,17 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
                 .into(imageView);
         textViewTitle.setText(activeSong.getTitle());
         textViewArtist.setText(activeSong.getArtist());
+
         seekBar.setMax(songDuration);
         textViewTotalTime.setText(songDurationInMinutes);
         loadPlayPauseButton(playPauseButton);
+        if (storage.loadFavouriteSongs() != null) {
+            if (favouriteSongs.isFavourite(activeSong)) {
+                imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+            }else {
+                imageViewFavourite.setImageResource(R.drawable.ic_baseline_not_favorite);
+            }
+        }
     }
 
     private void updateSongData(Intent intent) {
@@ -185,6 +204,13 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
         seekBar.setMax(songDuration);
         textViewTotalTime.setText(songDurationInMinutes);
         loadPlayPauseButton(playPauseButton);
+        if (storage.loadFavouriteSongs() != null) {
+            if (favouriteSongs.isFavourite(activeSong)) {
+                imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
+            }else {
+                imageViewFavourite.setImageResource(R.drawable.ic_baseline_not_favorite);
+            }
+        }
 
         storage.storeActiveSong(activeSong);
         storage.storeSongDuration(songDuration);

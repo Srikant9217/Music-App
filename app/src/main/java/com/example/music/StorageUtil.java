@@ -15,6 +15,7 @@ public class StorageUtil {
     private final String STORAGE = "STORAGE";
     private final String SONG_ARRAY_LIST = "SONG_ARRAY_LIST";
     private final String SONG_POSITION = "SONG_POSITION";
+    private final String FAVOURITE_SONGS = "FAVOURITE_SONGS";
 
     private final String STORAGE_LAST_SONG = "STORAGE_LAST_SONG";
     private final String ACTIVE_SONG = "ACTIVE_SONG";
@@ -64,6 +65,24 @@ public class StorageUtil {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         return preferences.getInt(SONG_POSITION, -1);
     }
+
+    public void storeFavouriteSongs(ArrayList<SongModel> arrayList) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(arrayList);
+        editor.putString(FAVOURITE_SONGS, json);
+        editor.apply();
+    }
+
+    public ArrayList<SongModel> loadFavouriteSongs() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString(FAVOURITE_SONGS, null);
+        Type type = new TypeToken<ArrayList<SongModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
 
     public void clearCachedAudioPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
