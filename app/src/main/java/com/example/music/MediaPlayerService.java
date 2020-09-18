@@ -172,7 +172,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             stopMedia();
             mediaPlayer.release();
         }
-        removeAudioFocus();
         if (phoneStateListener != null) {
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
         }
@@ -266,15 +265,18 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void focus(){
+        Log.e(MainActivity.TAG, "focus: "+ storage.loadFocus());
         if (!storage.loadFocus()) {
-            if (!requestAudioFocus()) {
-                stopSelf();
+            if (requestAudioFocus()) {
                 storage.storeFocus(true);
+            }else {
+                stopSelf();
             }
         }
     }
 
     private void removeAudioFocus() {
+        storage.storeFocus(false);
         audioManager.abandonAudioFocus(this);
     }
 

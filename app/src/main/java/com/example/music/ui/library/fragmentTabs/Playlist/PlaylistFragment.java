@@ -1,4 +1,4 @@
-package com.example.music.ui.Playlist;
+package com.example.music.ui.library.fragmentTabs.Playlist;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

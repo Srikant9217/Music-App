@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.example.music.Model.SongModel;
+import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.squareup.picasso.Picasso;
 
 public class SongController extends Fragment implements SeekBar.OnSeekBarChangeListener {

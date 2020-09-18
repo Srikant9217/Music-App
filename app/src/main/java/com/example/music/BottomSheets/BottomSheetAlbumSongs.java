@@ -16,7 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 
-public class BottomSheetPlaylistSongs extends BottomSheetDialogFragment {
+public class BottomSheetAlbumSongs extends BottomSheetDialogFragment {
     private BottomSheetListener listener;
 
     @Nullable
@@ -25,7 +25,6 @@ public class BottomSheetPlaylistSongs extends BottomSheetDialogFragment {
         View v = inflater.inflate(R.layout.bottom_sheet, container, false);
 
         ArrayList<String> options = new ArrayList<>();
-        options.add("Remove");
         options.add("Favourite");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),

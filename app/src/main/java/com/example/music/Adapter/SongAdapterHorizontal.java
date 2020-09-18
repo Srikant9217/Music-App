@@ -10,16 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.example.music.Model.SongModel;
 import com.example.music.R;
 import com.example.music.StorageUtil;
+import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
+public class SongAdapterHorizontal extends RecyclerView.Adapter<SongAdapterHorizontal.SongViewHolder> {
     private Context context;
     private List<SongModel> songs;
     private OnItemClickListener listener;
@@ -27,7 +27,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private ArrayList<SongModel> favSongs;
     private FavouriteSongs favouriteSongs;
 
-    public SongAdapter(Context context, List<SongModel> songs) {
+    public SongAdapterHorizontal(Context context, List<SongModel> songs) {
         this.context = context;
         this.songs = songs;
         storage = new StorageUtil(context);
@@ -37,7 +37,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.item_song, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.item_song_horizontal, parent, false);
         favSongs = storage.loadFavouriteSongs();
         return new SongViewHolder(v);
     }

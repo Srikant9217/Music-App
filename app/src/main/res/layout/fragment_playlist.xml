@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.Playlist.PlaylistFragment">
+    tools:context=".ui.library.fragmentTabs.Playlist.PlaylistFragment">
 
     <TextView
         android:id="@+id/text_view_playlist_title"

@@ -1,10 +1,7 @@
 package com.example.music.Adapter;
 
 import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,12 +16,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
+public class AlbumAdapterHorizontal extends RecyclerView.Adapter<AlbumAdapterHorizontal.AlbumViewHolder> {
     private Context context;
     private List<AlbumModel> albums;
     private OnItemClickListener listener;
 
-    public AlbumAdapter(Context context, List<AlbumModel> albums) {
+    public AlbumAdapterHorizontal(Context context, List<AlbumModel> albums) {
         this.context = context;
         this.albums = albums;
     }
@@ -32,7 +29,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     @NonNull
     @Override
     public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.item_album, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.item_album_horizontal, parent, false);
         return new AlbumViewHolder(v);
     }
 

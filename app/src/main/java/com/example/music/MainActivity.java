@@ -61,16 +61,11 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.song_controller_container, songControllerFragment)
                 .commit();
 
-        storage = new StorageUtil(getApplicationContext());
-        oldSongs = storage.loadAudioList();
-
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+        storage = new StorageUtil(getApplicationContext());
+        oldSongs = storage.loadAudioList();
         if (oldSongs != null && !oldSongs.isEmpty()) {
             startMusicService();
         } else {
@@ -78,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             v.setVisibility(View.GONE);
         }
     }
+
 
     private void startMusicService() {
         Intent playerIntent = new Intent(this, MediaPlayerService.class);
@@ -211,8 +207,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         if (serviceBound) {
             unbindService(serviceConnection);
         }

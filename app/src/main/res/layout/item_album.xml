@@ -6,20 +6,23 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:background="#000"
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/image_view_album_profile"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/ic_baseline_perm_identity_24" />
 
         <TextView
             android:id="@+id/text_view_album_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_toEndOf="@id/image_view_album_profile"
-            android:paddingStart="20dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="Name"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 

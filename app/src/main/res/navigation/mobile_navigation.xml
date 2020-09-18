@@ -45,11 +45,19 @@
         tools:layout="@layout/fragment_user_profile" />
     <fragment
         android:id="@+id/playlistFragment"
-        android:name="com.example.music.ui.Playlist.PlaylistFragment"
+        android:name="com.example.music.ui.library.fragmentTabs.Playlist.PlaylistFragment"
         android:label="fragment_playlist"
         tools:layout="@layout/fragment_playlist" />
     <fragment
         android:id="@+id/favouriteFragment"
-        android:name="com.example.music.ui.Playlist.FavouriteFragment"
+        android:name="com.example.music.ui.library.fragmentTabs.Playlist.FavouriteFragment"
         android:label="FavouriteFragment" />
+    <fragment
+        android:id="@+id/artistFragment"
+        android:name="com.example.music.ui.library.fragmentTabs.Artist.ArtistFragment"
+        android:label="ArtistFragment" />
+    <fragment
+        android:id="@+id/albumFragment"
+        android:name="com.example.music.ui.library.fragmentTabs.Album.AlbumFragment"
+        android:label="AlbumFragment" />
 </navigation>

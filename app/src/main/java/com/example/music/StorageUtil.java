@@ -3,6 +3,8 @@ package com.example.music;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.music.Model.AlbumModel;
+import com.example.music.Model.ArtistModel;
 import com.example.music.Model.SongModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,6 +18,8 @@ public class StorageUtil {
     private final String SONG_ARRAY_LIST = "SONG_ARRAY_LIST";
     private final String SONG_POSITION = "SONG_POSITION";
     private final String FAVOURITE_SONGS = "FAVOURITE_SONGS";
+    private final String FAVOURITE_ARTISTS = "FAVOURITE_ARTISTS";
+    private final String FAVOURITE_ALBUMS = "FAVOURITE_ALBUMS";
 
     private final String STORAGE_LAST_SONG = "STORAGE_LAST_SONG";
     private final String ACTIVE_SONG = "ACTIVE_SONG";
@@ -80,6 +84,41 @@ public class StorageUtil {
         Gson gson = new Gson();
         String json = preferences.getString(FAVOURITE_SONGS, null);
         Type type = new TypeToken<ArrayList<SongModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public void storeFavouriteArtists(ArrayList<ArtistModel> arrayList) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(arrayList);
+        editor.putString(FAVOURITE_ARTISTS, json);
+        editor.apply();
+    }
+
+    public ArrayList<ArtistModel> loadFavouriteArtists() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString(FAVOURITE_ARTISTS, null);
+        Type type = new TypeToken<ArrayList<ArtistModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+
+    public void storeFavouriteAlbums(ArrayList<AlbumModel> arrayList) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(arrayList);
+        editor.putString(FAVOURITE_ALBUMS, json);
+        editor.apply();
+    }
+
+    public ArrayList<AlbumModel> loadFavouriteAlbums() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString(FAVOURITE_ALBUMS, null);
+        Type type = new TypeToken<ArrayList<AlbumModel>>() {}.getType();
         return gson.fromJson(json, type);
     }
 

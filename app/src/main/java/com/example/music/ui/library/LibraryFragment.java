@@ -11,9 +11,9 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.music.R;
-import com.example.music.ui.library.fragmentTabs.Albums;
-import com.example.music.ui.library.fragmentTabs.Artists;
-import com.example.music.ui.library.fragmentTabs.PlaylistsFragment;
+import com.example.music.ui.library.fragmentTabs.Album.AlbumsFragment;
+import com.example.music.ui.library.fragmentTabs.Artist.ArtistsFragment;
+import com.example.music.ui.library.fragmentTabs.Playlist.PlaylistsFragment;
 import com.google.android.material.tabs.TabLayout;
 
 public class LibraryFragment extends Fragment {
@@ -33,8 +33,8 @@ public class LibraryFragment extends Fragment {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(new PlaylistsFragment(), "Playlists");
-        adapter.addFragment(new Artists(), "Artists");
-        adapter.addFragment(new Albums(), "Albums");
+        adapter.addFragment(new ArtistsFragment(), "Artists");
+        adapter.addFragment(new AlbumsFragment(), "Albums");
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
     }

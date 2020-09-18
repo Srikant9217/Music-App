@@ -16,7 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 
-public class BottomSheetPlaylistSongs extends BottomSheetDialogFragment {
+public class BottomSheetArtists extends BottomSheetDialogFragment {
     private BottomSheetListener listener;
 
     @Nullable
@@ -45,11 +45,11 @@ public class BottomSheetPlaylistSongs extends BottomSheetDialogFragment {
     }
 
 
-    public interface BottomSheetListener{
+    public interface BottomSheetListener {
         void onOptionClicked(int position);
     }
 
-    public void setBottomSheetListener(BottomSheetListener listener){
+    public void setBottomSheetListener(BottomSheetListener listener) {
         this.listener = listener;
     }
 }

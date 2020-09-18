@@ -1,11 +1,10 @@
-package com.example.music.ui.library.fragmentTabs;
+package com.example.music.ui.library.fragmentTabs.Playlist;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +22,6 @@ import com.example.music.Dialogs.DialogAddPlaylist;
 import com.example.music.Model.PlaylistModel;
 import com.example.music.Model.UserModel;
 import com.example.music.R;
-import com.example.music.ui.Playlist.PlaylistFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +47,6 @@ public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnIte
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
 
-    private FirebaseStorage firebaseStorage;
     private DatabaseReference databaseReference;
     private ValueEventListener dbListener1;
     private ValueEventListener dbListener2;
@@ -77,7 +74,6 @@ public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnIte
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
 
-        firebaseStorage = FirebaseStorage.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -111,6 +107,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistAdapter.OnIte
                         }
                     });
         }else {
+            Toast.makeText(getActivity(), "Please Login", Toast.LENGTH_SHORT).show();
             progressBarRecycler.setVisibility(View.INVISIBLE);
         }
 
