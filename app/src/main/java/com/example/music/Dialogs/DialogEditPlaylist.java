@@ -12,26 +12,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import com.example.music.Model.UserModel;
 import com.example.music.R;
 
-public class DialogEditProfileName extends AppCompatDialogFragment {
+public class DialogEditPlaylist extends AppCompatDialogFragment {
     private EditText editTextName;
-    private DialogEditProfileNameListener listener;
+    private DialogPlaylistListener listener;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_edit_profile_name, null);
 
-        UserModel user = (UserModel) getArguments().getSerializable("user");
-        editTextName = view.findViewById(R.id.dialog_edit_profile_name);
-        editTextName.setText(user.getName());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_add_playlist, null);
+
+        final int position = getArguments().getInt("position");
+        String currentName = getArguments().getString("currentName");
+        editTextName = view.findViewById(R.id.dialog_playlist_name);
+        editTextName.setText(currentName);
 
         builder.setView(view)
-                .setTitle("Set Username")
+                .setTitle("Edit Playlist")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -41,19 +42,18 @@ public class DialogEditProfileName extends AppCompatDialogFragment {
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String name = editTextName.getText().toString();
-                        listener.editName(name);
+                        String playlistName = editTextName.getText().toString();
+                        listener.editPlaylistName(playlistName, position);
                     }
                 });
         return builder.create();
     }
 
-    public interface DialogEditProfileNameListener{
-        void editName(String name);
+    public interface DialogPlaylistListener{
+        void editPlaylistName(String playlistName, int position);
     }
 
-    public void setListener(DialogEditProfileNameListener listener){
+    public void setListener(DialogPlaylistListener listener){
         this.listener = listener;
     }
 }
-

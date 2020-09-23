@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.example.music.Model.SongModel;
 import com.example.music.R;
-import com.example.music.StorageUtil;
+import com.example.music.Storage.StorageUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -91,9 +91,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
+            SongModel song = songs.get(position);
             switch (view.getId()) {
                 case R.id.image_view_favourite:
-                    boolean isFavourite = favouriteSongs.favourite(songs.get(position), context);
+                    boolean isFavourite = favouriteSongs.favouriteOrUnFavourite(songs.get(position), context);
                     if (isFavourite) {
                         imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
                     } else {
@@ -103,7 +104,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 case R.id.image_view_menu:
                     if (listener != null) {
                         if (position != RecyclerView.NO_POSITION) {
-                            listener.onItemLongClick(position);
+                            listener.onItemLongClick(position, song);
                         }
                     }
                     break;
@@ -120,8 +121,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         public boolean onLongClick(View view) {
             if (listener != null) {
                 int position = getAdapterPosition();
+                SongModel song = songs.get(position);
                 if (position != RecyclerView.NO_POSITION) {
-                    listener.onItemLongClick(position);
+                    listener.onItemLongClick(position, song);
                 }
             }
             return true;
@@ -131,7 +133,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public interface OnItemClickListener {
         void onItemClick(int position);
 
-        void onItemLongClick(int position);
+        void onItemLongClick(int position, SongModel song);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

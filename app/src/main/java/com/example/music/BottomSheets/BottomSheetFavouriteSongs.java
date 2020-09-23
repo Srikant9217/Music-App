@@ -13,16 +13,14 @@ import androidx.annotation.Nullable;
 
 import com.example.music.Model.SongModel;
 import com.example.music.R;
-import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 
-public class BottomSheetAlbumSongs extends BottomSheetDialogFragment {
+public class BottomSheetFavouriteSongs extends BottomSheetDialogFragment {
     private BottomSheetListener listener;
     private Integer songPosition;
     private SongModel currentSong;
-    private String favourite;
 
     @Nullable
     @Override
@@ -32,16 +30,10 @@ public class BottomSheetAlbumSongs extends BottomSheetDialogFragment {
         songPosition = getArguments().getInt("position");
         currentSong = (SongModel) getArguments().getSerializable("song");
 
-        if (FavouriteSongs.getInstance(getActivity()).isFavourite(currentSong)){
-            favourite = "UnFavourite";
-        }else {
-            favourite = "Favourite";
-        }
-
         ArrayList<String> options = new ArrayList<>();
-        options.add(favourite);
+        options.add("UnFavourite");
+        options.add("View Album");
         options.add("View Artist");
-
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_list_item_1,

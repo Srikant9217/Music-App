@@ -29,7 +29,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginFragment extends Fragment {
-    private EditText editTextUserName;
+    private EditText editTextUsername;
+    private EditText editTextEmail;
     private EditText editTextPassword;
     private Button buttonLogin;
     private Button buttonRegister;
@@ -43,7 +44,8 @@ public class LoginFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login, container, false);
 
-        editTextUserName = v.findViewById(R.id.edit_text_username);
+        editTextUsername = v.findViewById(R.id.edit_text_username);
+        editTextEmail = v.findViewById(R.id.edit_text_email);
         editTextPassword = v.findViewById(R.id.edit_text_password);
         buttonLogin = v.findViewById(R.id.button_login);
         buttonRegister = v.findViewById(R.id.button_register);
@@ -55,7 +57,6 @@ public class LoginFragment extends Fragment {
             NavHostFragment.findNavController(LoginFragment.this)
                     .navigate(R.id.action_loginFragment_to_userProfileFragment);
         }
-
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +85,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void loginUser(){
-        firebaseAuth.signInWithEmailAndPassword(editTextUserName.getText().toString(),
+        firebaseAuth.signInWithEmailAndPassword(editTextEmail.getText().toString(),
                 editTextPassword.getText().toString())
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
@@ -97,7 +98,6 @@ public class LoginFragment extends Fragment {
                             FavouriteAlbums.setInstance();
                             FavouriteArtists.setInstance();
 
-                            Toast.makeText(getActivity(), "Login Successful", Toast.LENGTH_SHORT).show();
                             NavHostFragment.findNavController(LoginFragment.this)
                                     .navigate(R.id.action_loginFragment_to_userProfileFragment);
                         }else {
@@ -109,7 +109,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void registerUser() {
-        firebaseAuth.createUserWithEmailAndPassword(editTextUserName.getText().toString(),
+        firebaseAuth.createUserWithEmailAndPassword(editTextEmail.getText().toString(),
                 editTextPassword.getText().toString())
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
@@ -120,8 +120,7 @@ public class LoginFragment extends Fragment {
 
                             UserModel user = new UserModel(
                                     currentUser.getUid(),
-                                    currentUser.getDisplayName(),
-                                    String.valueOf(currentUser.getPhotoUrl()));
+                                    editTextUsername.getText().toString());
                             String uploadId = databaseRef.push().getKey();
                             databaseRef.child(uploadId).setValue(user);
 
@@ -129,12 +128,11 @@ public class LoginFragment extends Fragment {
                             FavouriteAlbums.setInstance();
                             FavouriteArtists.setInstance();
 
-                            Toast.makeText(getActivity(), "Registration Successful", Toast.LENGTH_SHORT).show();
                             NavHostFragment.findNavController(LoginFragment.this)
                                     .navigate(R.id.action_loginFragment_to_userProfileFragment);
                         } else {
                             Log.e(MainActivity.TAG, "SignUp failure", task.getException());
-                            Toast.makeText(getActivity(), "Registration Failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

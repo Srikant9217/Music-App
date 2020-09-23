@@ -21,6 +21,7 @@ import com.example.music.Model.ArtistModel;
 import com.example.music.Model.SongModel;
 import com.example.music.Model.UserModel;
 import com.example.music.R;
+import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -82,8 +83,6 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnItemCli
                                         artist.setKey(postSnapshot.getKey());
                                         artistList.add(artist);
                                     }
-                                } else {
-                                    Toast.makeText(getActivity(), "No Favourite Artists", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             adapter.notifyDataSetChanged();
@@ -97,7 +96,6 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnItemCli
                         }
                     });
         } else {
-            Toast.makeText(getActivity(), "Please Login", Toast.LENGTH_SHORT).show();
             progressBarRecycler.setVisibility(View.INVISIBLE);
         }
         return v;
@@ -112,19 +110,31 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnItemCli
     }
 
     @Override
-    public void onArtistItemLongClick(int position) {
+    public void onArtistItemLongClick(int position, ArtistModel artist) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", position);
+        bundle.putSerializable("artist", artist);
+
         BottomSheetArtists bottomSheetArtists = new BottomSheetArtists();
         bottomSheetArtists.setBottomSheetListener(this);
+        bottomSheetArtists.setArguments(bundle);
         bottomSheetArtists.show(getChildFragmentManager(), "BottomSheetArtists");
     }
 
     @Override
-    public void onOptionClicked(int position) {
-        switch (position) {
+    public void onOptionClicked(int option, int position, ArtistModel artist) {
+        switch (option) {
             case 0:
-                Toast.makeText(getActivity(), "0", Toast.LENGTH_SHORT).show();
+                FavouriteArtists favouriteArtists = FavouriteArtists.getInstance(getActivity());
+                favouriteArtists.favourite(artist, getActivity());
+                break;
             case 1:
-                Toast.makeText(getActivity(), "1", Toast.LENGTH_SHORT).show();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(ArtistFragment.CURRENT_ARTIST, artist);
+                View view = getActivity().findViewById(R.id.recycler_view);
+                view.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.artistFragment, bundle));
+                view.callOnClick();
+                break;
         }
     }
 

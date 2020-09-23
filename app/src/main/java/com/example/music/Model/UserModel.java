@@ -2,12 +2,12 @@ package com.example.music.Model;
 
 import com.google.firebase.firestore.Exclude;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class UserModel {
+public class UserModel implements Serializable {
     private String UserId;
     private String name;
-    private String imageUrl;
     private ArrayList<SongModel> favouriteSongs;
     private ArrayList<ArtistModel> favouriteArtists;
     private ArrayList<AlbumModel> favouriteAlbums;
@@ -16,10 +16,9 @@ public class UserModel {
 
     public UserModel() {}
 
-    public UserModel(String userId, String name, String imageUrl) {
+    public UserModel(String userId, String name) {
         UserId = userId;
         this.name = name;
-        this.imageUrl = imageUrl;
     }
 
     public String getUserId() {
@@ -36,14 +35,6 @@ public class UserModel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public ArrayList<SongModel> getFavouriteSongs() {

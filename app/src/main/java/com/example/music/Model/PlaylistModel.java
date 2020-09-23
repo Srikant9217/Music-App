@@ -2,9 +2,10 @@ package com.example.music.Model;
 
 import com.google.firebase.firestore.Exclude;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PlaylistModel {
+public class PlaylistModel implements Serializable {
     private String name;
     private ArrayList<String> songs;
     private String key;

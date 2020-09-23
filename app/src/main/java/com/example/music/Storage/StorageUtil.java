@@ -1,11 +1,13 @@
-package com.example.music;
+package com.example.music.Storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.music.Model.AlbumModel;
 import com.example.music.Model.ArtistModel;
 import com.example.music.Model.SongModel;
+import com.example.music.PlaybackStatus;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -17,6 +19,8 @@ public class StorageUtil {
     private final String STORAGE = "STORAGE";
     private final String SONG_ARRAY_LIST = "SONG_ARRAY_LIST";
     private final String SONG_POSITION = "SONG_POSITION";
+
+    private final String USER_STORAGE = "USER_STORAGE";
     private final String FAVOURITE_SONGS = "FAVOURITE_SONGS";
     private final String FAVOURITE_ARTISTS = "FAVOURITE_ARTISTS";
     private final String FAVOURITE_ALBUMS = "FAVOURITE_ALBUMS";
@@ -70,8 +74,16 @@ public class StorageUtil {
         return preferences.getInt(SONG_POSITION, -1);
     }
 
-    public void storeFavouriteSongs(ArrayList<SongModel> arrayList) {
+
+    public void clearCachedAudioPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    public void storeFavouriteSongs(ArrayList<SongModel> arrayList) {
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
         String json = gson.toJson(arrayList);
@@ -80,7 +92,7 @@ public class StorageUtil {
     }
 
     public ArrayList<SongModel> loadFavouriteSongs() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = preferences.getString(FAVOURITE_SONGS, null);
         Type type = new TypeToken<ArrayList<SongModel>>() {}.getType();
@@ -88,7 +100,7 @@ public class StorageUtil {
     }
 
     public void storeFavouriteArtists(ArrayList<ArtistModel> arrayList) {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
         String json = gson.toJson(arrayList);
@@ -97,7 +109,7 @@ public class StorageUtil {
     }
 
     public ArrayList<ArtistModel> loadFavouriteArtists() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = preferences.getString(FAVOURITE_ARTISTS, null);
         Type type = new TypeToken<ArrayList<ArtistModel>>() {}.getType();
@@ -106,7 +118,7 @@ public class StorageUtil {
 
 
     public void storeFavouriteAlbums(ArrayList<AlbumModel> arrayList) {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
         String json = gson.toJson(arrayList);
@@ -115,7 +127,7 @@ public class StorageUtil {
     }
 
     public ArrayList<AlbumModel> loadFavouriteAlbums() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = preferences.getString(FAVOURITE_ALBUMS, null);
         Type type = new TypeToken<ArrayList<AlbumModel>>() {}.getType();
@@ -123,8 +135,8 @@ public class StorageUtil {
     }
 
 
-    public void clearCachedAudioPlaylist() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+    public void clearCachedUserStorage() {
+        preferences = context.getSharedPreferences(USER_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
         editor.apply();

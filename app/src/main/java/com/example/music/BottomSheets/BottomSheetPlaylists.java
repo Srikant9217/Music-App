@@ -11,12 +11,16 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.music.Model.AlbumModel;
+import com.example.music.Model.ArtistModel;
+import com.example.music.Model.PlaylistModel;
 import com.example.music.Model.SongModel;
+import com.example.music.Model.UserModel;
 import com.example.music.R;
-import com.example.music.ui.library.fragmentTabs.Album.FavouriteAlbums;
+import com.example.music.ui.library.fragmentTabs.Artist.FavouriteArtists;
 import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,50 +29,41 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class BottomSheetAlbums extends BottomSheetDialogFragment {
+public class BottomSheetPlaylists extends BottomSheetDialogFragment {
     private BottomSheetListener listener;
-    private Integer albumPosition;
-    private AlbumModel currentAlbum;
-    private String favourite;
-    private String favouriteAll;
-    private ValueEventListener dbListener1;
+    private Integer playlistPosition;
+    private PlaylistModel playlist;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser currentUser;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.bottom_sheet, container, false);
+        View v = inflater.inflate(R.layout.bottom_sheet, container, false);
         final ListView listView = v.findViewById(R.id.list_view_options);
 
-        albumPosition = getArguments().getInt("position");
-        currentAlbum = (AlbumModel) getArguments().getSerializable("album");
+        playlistPosition = getArguments().getInt("position");
 
-        if (FavouriteAlbums.getInstance(getActivity()).isFavourite(currentAlbum)){
-            favourite = "UnFavourite";
-        }else {
-            favourite = "Favourite";
-        }
+        firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
 
-        final DatabaseReference albumReference = FirebaseDatabase.getInstance().getReference("Song");
-        dbListener1 = albumReference.orderByChild("album").equalTo(currentAlbum.getName())
+        final DatabaseReference userReference = FirebaseDatabase.getInstance().getReference("Users");
+        userReference.orderByChild("userId").equalTo(currentUser.getUid())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        ArrayList<SongModel> songList = new ArrayList<>();
                         for (DataSnapshot postSnapshot : snapshot.getChildren()) {
-                            SongModel song = postSnapshot.getValue(SongModel.class);
-                            songList.add(song);
-                        }
-                        FavouriteSongs favouriteSongs = FavouriteSongs.getInstance(getActivity());
-                        if (favouriteSongs.isFavouriteAll(songList)){
-                            favouriteAll = "Unlike All Songs";
-                        }else {
-                            favouriteAll = "Like All Songs";
+                            UserModel user = postSnapshot.getValue(UserModel.class);
+                            ArrayList<PlaylistModel> playlists = user.getPlaylists();
+                            playlist = playlists.get(playlistPosition);
+
                         }
 
                         ArrayList<String> options = new ArrayList<>();
-                        options.add(favourite);
-                        options.add(favouriteAll);
-                        options.add("View Album");
+                        options.add("Edit");
+                        options.add("Delete");
+                        options.add("View Playlist");
 
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                                 android.R.layout.simple_list_item_1,
@@ -78,13 +73,13 @@ public class BottomSheetAlbums extends BottomSheetDialogFragment {
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                listener.onOptionClicked(i, albumPosition, currentAlbum);
+                                listener.onOptionClicked(i, playlistPosition, playlist);
                                 dismiss();
                             }
                         });
-
-                        albumReference.removeEventListener(dbListener1);
+                        userReference.removeEventListener(this);
                     }
+
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
 
@@ -95,7 +90,7 @@ public class BottomSheetAlbums extends BottomSheetDialogFragment {
 
 
     public interface BottomSheetListener {
-        void onOptionClicked(int option, int position, AlbumModel album);
+        void onOptionClicked(int option, int position, PlaylistModel playlist);
     }
 
     public void setBottomSheetListener(BottomSheetListener listener) {

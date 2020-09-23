@@ -6,9 +6,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.music.Model.ArtistModel;
-import com.example.music.Model.SongModel;
 import com.example.music.Model.UserModel;
-import com.example.music.StorageUtil;
+import com.example.music.Storage.StorageUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;

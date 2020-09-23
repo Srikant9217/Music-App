@@ -23,12 +23,12 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.music.Model.SongModel;
+import com.example.music.Storage.StorageUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -265,7 +265,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void focus(){
-        Log.e(MainActivity.TAG, "focus: "+ storage.loadFocus());
         if (!storage.loadFocus()) {
             if (requestAudioFocus()) {
                 storage.storeFocus(true);

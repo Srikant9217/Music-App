@@ -6,9 +6,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.music.Model.AlbumModel;
-import com.example.music.Model.ArtistModel;
 import com.example.music.Model.UserModel;
-import com.example.music.StorageUtil;
+import com.example.music.Storage.StorageUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -93,10 +92,8 @@ public class FavouriteAlbums {
         if (currentUser != null) {
             if (isFavourite(album)) {
                 removeFavouriteAlbum(album);
-                updateFavouriteAlbumsList();
             } else {
                 addFavouriteAlbum(album);
-                updateFavouriteAlbumsList();
                 return true;
             }
         } else {
@@ -118,6 +115,7 @@ public class FavouriteAlbums {
                             }
                             albums.add(album);
                             user.setFavouriteAlbums(albums);
+                            storage.storeFavouriteAlbums(albums);
 
                             String uploadId = postSnapshot.getKey();
                             userReference.child(uploadId).setValue(user);
@@ -152,7 +150,7 @@ public class FavouriteAlbums {
                                 }
                             }
                             albums.remove(position);
-
+                            storage.storeFavouriteAlbums(albums);
                             user.setFavouriteAlbums(albums);
 
                             String uploadId = postSnapshot.getKey();

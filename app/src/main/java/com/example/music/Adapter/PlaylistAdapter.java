@@ -45,7 +45,8 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         return playlists.size();
     }
 
-    public class PlaylistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class PlaylistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnLongClickListener {
         private ImageView imageViewPlaylistProfile;
         private TextView textViewPlaylistName;
 
@@ -54,6 +55,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
             imageViewPlaylistProfile = itemView.findViewById(R.id.image_view_playlist_profile);
             textViewPlaylistName = itemView.findViewById(R.id.text_view_playlist_name);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
@@ -65,10 +67,23 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
                 }
             }
         }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (listener != null) {
+                int position = getAdapterPosition();
+                PlaylistModel playlistModel = playlists.get(position);
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onItemLongClicked(position, playlistModel);
+                }
+            }
+            return true;
+        }
     }
 
     public interface OnItemClickListener {
         void onItemClick(int position, View view);
+        void onItemLongClicked(int position, PlaylistModel playlistModel);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

@@ -83,7 +83,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
             if (listener != null){
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION){
-                    listener.onArtistItemLongClick(position);
+                    listener.onArtistItemLongClick(position, artists.get(position));
                 }
             }
             return true;
@@ -92,7 +92,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
 
     public interface OnItemClickListener{
         void onArtistItemClick(View view, ArtistModel artist);
-        void onArtistItemLongClick(int position);
+        void onArtistItemLongClick(int position, ArtistModel artistModel);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){

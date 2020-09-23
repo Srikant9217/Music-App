@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.example.music.Model.SongModel;
+import com.example.music.Storage.StorageUtil;
 import com.example.music.ui.library.fragmentTabs.Playlist.FavouriteSongs;
 import com.squareup.picasso.Picasso;
 
@@ -95,7 +96,8 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     public void collapseController(View v) {
         TransitionManager.beginDelayedTransition(layout);
         constraintSetCollapsed.applyTo(layout);
-        v.setBackgroundColor(getResources().getColor(R.color.songControllerBackground));
+        View view = getActivity().findViewById(R.id.song_controller_layout);
+        view.setBackgroundColor(getResources().getColor(R.color.songControllerBackground));
     }
 
     public void openOptions(View v) {
@@ -107,7 +109,7 @@ public class SongController extends Fragment implements SeekBar.OnSeekBarChangeL
     }
 
     public void likeSong(View v) {
-        boolean isFavourite = favouriteSongs.favourite(activeSong, getActivity());
+        boolean isFavourite = favouriteSongs.favouriteOrUnFavourite(activeSong, getActivity());
         if (isFavourite) {
             imageViewFavourite.setImageResource(R.drawable.ic_baseline_favorite_24);
         } else {

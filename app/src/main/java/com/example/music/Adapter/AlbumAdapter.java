@@ -84,7 +84,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
             if (listener != null) {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    listener.onAlbumItemLongClick(position);
+                    listener.onAlbumItemLongClick(position, albums.get(position));
                 }
             }
             return true;
@@ -93,7 +93,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
     public interface OnItemClickListener {
         void onAlbumItemClick(View view, AlbumModel album);
-        void onAlbumItemLongClick(int position);
+        void onAlbumItemLongClick(int position, AlbumModel albumModel);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
