@@ -60,4 +60,8 @@
         android:id="@+id/albumFragment"
         android:name="com.example.music.ui.library.fragmentTabs.Album.AlbumFragment"
         android:label="AlbumFragment" />
+    <fragment
+        android:id="@+id/searchItemsFragment"
+        android:name="com.example.music.ui.search.SearchItemsFragment"
+        android:label="SearchItemsFragment" />
 </navigation>

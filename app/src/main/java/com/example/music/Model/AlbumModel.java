@@ -3,6 +3,7 @@ package com.example.music.Model;
 import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class AlbumModel implements Serializable {
     private String name;
@@ -40,5 +41,20 @@ public class AlbumModel implements Serializable {
     @Exclude
     public void setKey(String key) {
         this.key = key;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AlbumModel that = (AlbumModel) o;
+        return name.equals(that.name) &&
+                Objects.equals(imageUrl, that.imageUrl) &&
+                key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, imageUrl, key);
     }
 }
